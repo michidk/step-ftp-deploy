@@ -1,0 +1,20 @@
+name: ftp-deploy
+version: 0.0.1
+description: Sync your FTP files from diff-file list
+keywords:
+  - ftp
+  - diff
+  - cache
+  - output
+properties:
+  destionation:
+    type: string
+    required: true
+  username:
+    type: string
+    required: true
+  password:
+    type: string
+    required: true
+
+
