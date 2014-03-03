@@ -8,12 +8,15 @@ FTP_PASSWORD=$WERCKER_FTP_DEPLOY_PASSWORD
 FTP_USERNAME=$WERCKER_FTP_DEPLOY_USERNAME
 FTP_DIFF_FILE=$WERCKER_FTP_DEPLOY_DIFF_FILE
 
-pwd
-cd $WERCKER_BUILD
+# pwd is /pipeline/build
+# $WERCKER_BUILD is /home/ubuntu
+# $WERCKER_OUTPUT is /home/ubuntu
+
+echo pwd
 pwd
 ls
-cd $WERCKER_OUTPUT
-pwd 
+echo cd $WERCKER_CACHE/output-cache-diff
+cd $WERCKER_CACHE/output-cache-diff
 ls
 
 echo "Test connection"
@@ -21,7 +24,7 @@ echo "Test connection"
 echo "curl -u $FTP_USERNAME:FTP_PASSWORD $FTP_URL/"
 curl -u $FTP_USERNAME:$FTP_PASSWORD $FTP_URL/
 
-echo "find . -type f -exec curl -u $FTP_USERNAME:FTP_PASSWORD --ftp-create-dirs -T {} $FTP_URL/{} \;"
+#echo "find . -type f -exec curl -u $FTP_USERNAME:FTP_PASSWORD --ftp-create-dirs -T {} $FTP_URL/{} \;"
 
 #find . -type f -exec curl -u $FTP_USERNAME:$FTP_PASSWORD --ftp-create-dirs -T {} $FTP_URL/{} \;
 
