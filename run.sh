@@ -12,9 +12,12 @@ DIFF_FILE=$WERCKER_FTP_DEPLOY_DIFF_FILE
 # $WERCKER_BUILD is /home/ubuntu
 # $WERCKER_OUTPUT is /home/ubuntu
 
-echo "Test connection"
+echo "cat diff-file=$DIFF_FILE"
+cat $DIFF_FILE
 
-echo "curl -u $USERNAME:do_not_show_PASSWORD $DESTINATION/"
+echo "Test connection and list $DESTINATION files"
+
+echo "curl -u $USERNAME:do_not_show_PASSWORD_in_log $DESTINATION/"
 curl -u $USERNAME:$PASSWORD $DESTINATION/
 
 #echo "find . -type f -exec curl -u $FTP_USERNAME:FTP_PASSWORD --ftp-create-dirs -T {} $FTP_URL/{} \;"
@@ -22,8 +25,16 @@ curl -u $USERNAME:$PASSWORD $DESTINATION/
 #find . -type f -exec curl -u $FTP_USERNAME:$FTP_PASSWORD --ftp-create-dirs -T {} $FTP_URL/{} \;
 
 awk 'BEGIN {}
-$1~/M|D/ { print "removing " $2;system("curl -u $USERNAME:$PASSWORD -X \"DELE "$2"\" $DESTINATION/ ") }
-$1~/M|A/ { print "adding " $2; system("curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$2" $DESTINATION/"$2) }
+$1~/M|D/ {
+  print "removing " $2;
+  system("echo -u $USERNAME:$PASSWORD -X \"DELE "$2"\" $DESTINATION/ ") 
+  system("curl -u $USERNAME:$PASSWORD -X \"DELE "$2"\" $DESTINATION/ ") 
+}
+$1~/M|A/ { 
+  print "adding " $2; 
+  system("echo -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$2" $DESTINATION/"$2) 
+  system("curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$2" $DESTINATION/"$2) 
+}
 
 END {} ' $DIFF_FILE
 
