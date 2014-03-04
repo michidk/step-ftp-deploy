@@ -15,7 +15,7 @@ Deploy your code using a list of files (diff-file)
 Add PASSWORD as environment variable.
 
 ```yaml
-build:
+deploy:
   steps:
     - duleorlovic/ftp-deploy:
         destination: ftp://domain.example.com/site/public_html

@@ -26,6 +26,8 @@ export DIFF_FILE=$WERCKER_FTP_DEPLOY_DIFF_FILE
 # pwd is /pipeline/build
 # $WERCKER_BUILD is /home/ubuntu
 # $WERCKER_OUTPUT is /home/ubuntu
+pwd
+ls
 
 if [ ! -n "$WERCKER_FTP_DEPLOY_DIFF_FILE" ]
 then
