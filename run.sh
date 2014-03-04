@@ -4,7 +4,7 @@
 #check if publish url endswith wwwroot
 
 # confirm environment variables
-if [ ! -n "$WERCKER_FTP_DEPLOY_DESTINATIO" ]
+if [ ! -n "$WERCKER_FTP_DEPLOY_DESTINATION" ]
 then
     fail "missing option \"destination\", aborting"
 fi

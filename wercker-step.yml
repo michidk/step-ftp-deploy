@@ -1,5 +1,5 @@
 name: ftp-deploy
-version: 0.0.10
+version: 0.0.11
 description: Sync your FTP files from diff-file list
 keywords:
   - ftp
