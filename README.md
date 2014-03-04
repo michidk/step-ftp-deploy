@@ -8,7 +8,7 @@ Deploy your code using a list of files (diff-file)
 * `destination` (required) Full FTP path to upload to. Should start with ftp:// and end with wwwroot or publib_html
 * `username` (required) Username to connect to FTP server. _You must escape `\` and `$`, see example.
 * `password` (required) Password to connect to FTP server
-* `diff-file` A list of files (one filename in one row). Can be generated with command `git diff --name-status --staged | tee diff-file'
+* `diff-file` A list of files (one filename in one row). Can be generated using step diff-output-in-cache (which is using command `git diff --name-status --staged | tee diff-file')
 
 # Example
 
