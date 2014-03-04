@@ -23,11 +23,14 @@ build:
         password: $PASSWORD
         diff-file: $WERCKER_CACHE_DIR/output-cache-diff/diff-file
 
+```
+
 # License
 
 The MIT License (MIT)
 
 Copyright (c) 2013 wercker
+With portions Copyright (c) 2014 duleorlovic
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

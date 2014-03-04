@@ -3,34 +3,27 @@
 #check if publish url starts with ftp
 #check if publish url endswith wwwroot
 
-FTP_URL=$WERCKER_FTP_DEPLOY_DESTINATION
-FTP_PASSWORD=$WERCKER_FTP_DEPLOY_PASSWORD
-FTP_USERNAME=$WERCKER_FTP_DEPLOY_USERNAME
-FTP_DIFF_FILE=$WERCKER_FTP_DEPLOY_DIFF_FILE
+DESTINATION=$WERCKER_FTP_DEPLOY_DESTINATION
+PASSWORD=$WERCKER_FTP_DEPLOY_PASSWORD
+USERNAME=$WERCKER_FTP_DEPLOY_USERNAME
+DIFF_FILE=$WERCKER_FTP_DEPLOY_DIFF_FILE
 
 # pwd is /pipeline/build
 # $WERCKER_BUILD is /home/ubuntu
 # $WERCKER_OUTPUT is /home/ubuntu
 
-echo pwd
-pwd
-ls
-echo cd $WERCKER_CACHE/output-cache-diff
-cd $WERCKER_CACHE/output-cache-diff
-ls
-
 echo "Test connection"
 
-echo "curl -u $FTP_USERNAME:FTP_PASSWORD $FTP_URL/"
-curl -u $FTP_USERNAME:$FTP_PASSWORD $FTP_URL/
+echo "curl -u $USERNAME:do_not_show_PASSWORD $DESTINATION/"
+curl -u $USERNAME:$PASSWORD $DESTINATION/
 
 #echo "find . -type f -exec curl -u $FTP_USERNAME:FTP_PASSWORD --ftp-create-dirs -T {} $FTP_URL/{} \;"
 
 #find . -type f -exec curl -u $FTP_USERNAME:$FTP_PASSWORD --ftp-create-dirs -T {} $FTP_URL/{} \;
 
 awk 'BEGIN {}
-$1~/M|D/ { print "removing " $2;system("curl -u $FTP_USERNAME:$FTP_PASSWORD -X \"DELE "$2"\" $FTP_URL/ ") }
-$1~/M|A/ { print "adding " $2; system("curl -u $FTP_USERNAME:$FTP_PASSWORD --ftp-create-dirs -T "$2" $FTP_URL/"$2) }
+$1~/M|D/ { print "removing " $2;system("curl -u $USERNAME:$PASSWORD -X \"DELE "$2"\" $DESTINATION/ ") }
+$1~/M|A/ { print "adding " $2; system("curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$2" $DESTINATION/"$2) }
 
-END {} ' $FTP_DIFF_FILE
+END {} ' $DIFF_FILE
 
