@@ -1,14 +1,13 @@
 # ftp-deploy
 
-Deploy your code using a list of files (diff-file)
+Deploy your files with FTP. Push only files that has been changed
 
 # Options
-
 
 * `destination` (required) Full FTP path to upload to. Should start with ftp:// and end with wwwroot or public_html
 * `username` (required) Username to connect to FTP server.
 * `password` (required) Password to connect to FTP server
-* `diff-file` (optional, default is a @diff-file@) It is a list of files (one filename in one row) that should be uploaded or removed from `destination`. Can be generated using wercker step diff-output-in-cache. Each line should start with A, M or D for files that should be uploaded, removed and uploaded and removed, respectively. List can be genarated with `git diff --name-status`.
+* `remote-file` (optional, default is a @remote.txt@) It is a list of md5sum and filename (one filename in one row). It is uploaded each time deplot is completed.
 
 # Example
 

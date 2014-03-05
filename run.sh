@@ -21,22 +21,16 @@ fi
 export DESTINATION=$WERCKER_FTP_DEPLOY_DESTINATION
 export USERNAME=$WERCKER_FTP_DEPLOY_USERNAME
 export PASSWORD=$WERCKER_FTP_DEPLOY_PASSWORD
-export DIFF_FILE=$WERCKER_FTP_DEPLOY_DIFF_FILE
+export REMOTE_FILE=$WERCKER_FTP_DEPLOY_REMOTE_FILE
 
 # pwd is /pipeline/build
 # $WERCKER_BUILD is /home/ubuntu
 # $WERCKER_OUTPUT is /home/ubuntu
-pwd
-ls
 
-if [ ! -n "$WERCKER_FTP_DEPLOY_DIFF_FILE" ]
+if [ ! -n "$WERCKER_FTP_DEPLOY_REMOTE_FILE" ]
 then
-    warn "missing option \"diff-file\" so we will use all files"
-    find . -type f | awk '{print "A "$1}' | tee diff-file
-    export DIFF_FILE=diff-file
-else
-    echo "cat $DIFF_FILE"
-    cat $DIFF_FILE
+    info "missing option \"diff-file\" so we will use all files"
+    export REMOTE_FILE=remote.txt
 fi
 
 echo "Test connection and list $DESTINATION files"
@@ -44,19 +38,27 @@ echo "Test connection and list $DESTINATION files"
 echo "curl -u $USERNAME:do_not_show_PASSWORD_in_log $DESTINATION/"
 curl -u $USERNAME:$PASSWORD $DESTINATION/
 
-echo "Modified and Deleted files are removed from $DESTINATION"
-echo "Modified and Added files are pushed to $DESTINATION"
+rm -f $WERCKER_CACHE/local.txt
 
-awk 'BEGIN {}
-$1~/M|D/ {
-  print "removing " $2;
-  system("curl -u $USERNAME:$PASSWORD -X \"DELE "$2"\" $DESTINATION/ ") 
-}
-$1~/M|A/ { 
-  print "adding " $2; 
-  system("curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$2" $DESTINATION/"$2) 
-}
+find . -type f -exec md5sum {} > $WERCKER_CACHE/local.txt \;
 
-END {} ' $DIFF_FILE
+curl -u $USERNAME:$PASSWORD  $DESTINATION/remote.txt -o $WERCKER_CACHE/remote.txt || (echo "no such file" && touch $WERCKER_CACHE/remote.txt )
 
-success "all files completed"
+diff $WERCKER_CACHE/local.txt $WERCKER_CACHE/remote.txt | awk '{print $3}' | sort -u |tee $WERCKER_CACHE/diff.txt
+
+while read file_name; do
+  if [  -n "$file_name" ];
+  then
+    info $file_name
+    curl -u $USERNAME:$PASSWORD -X "DELE $file_name" $DESTINATION/
+    if [ -f $file_name ];
+    then
+      curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name"
+    fi
+  fi
+done < $WERCKER_CACHE/diff.txt
+
+curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE/local.txt" "$DESTINATION/remote.txt"
+
+success "done uploading"
+

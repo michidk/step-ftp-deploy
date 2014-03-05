@@ -1,5 +1,5 @@
 name: ftp-deploy
-version: 0.0.13
+version: 0.0.14
 description: Sync your FTP files from diff-file list
 keywords:
   - ftp
@@ -16,7 +16,7 @@ properties:
   password:
     type: string
     required: true
-  diff-file:
+  remote-file:
     type: string
     required: false
 
