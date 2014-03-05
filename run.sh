@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 # confirm environment variables
 if [ ! -n "$WERCKER_FTP_DEPLOY_DESTINATION" ]
@@ -48,7 +48,7 @@ while read file_name; do
   if [  -n "$file_name" ];
   then
     echo $file_name
-    curl -u $USERNAME:$PASSWORD -X "DELE $file_name" $DESTINATION/
+    curl -u $USERNAME:$PASSWORD -X "DELE $file_name" $DESTINATION/ || echo "$file_name does not exists on server"
     if [ -f $file_name ];
     then
       curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name"
