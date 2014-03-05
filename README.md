@@ -1,6 +1,7 @@
 # ftp-deploy
 
-Deploy your files with FTP. It looks for list of files and their md5sum in *remote.txt* and compare with local generated files. If file is changed or removed it will be deleted from FTP repository. New or modified files will be pushed to FTP repository.
+Deploy your files with FTP. It looks for list of files and their md5sum in *remote-file* and compare with local generated files. If file is changed or removed it will be deleted from FTP repository and then modified of new files will be pushed to FTP repository.
+If *remote-file* is not in sync with actual files on *destination*, please clean *destination* and start again.
 
 # Options
 

@@ -1,8 +1,8 @@
-#!/bin/bash 
+#!/bin/bash -x
 
 # since wercker in beta allows max 25 minuter per build 
 # upload of large files can be separated
-TIMEOUT=2
+TIMEOUT=20
 date_start=$(date +"%s")
 echo "TIMEOUT is set to $TIMEOUT min. If wercker stop the script, it should from the beginning and clean FTP destination."
 
@@ -44,7 +44,6 @@ curl -u $USERNAME:$PASSWORD  $DESTINATION/$REMOTE_FILE -o $WERCKER_CACHE_DIR/rem
 echo "Sort unique"
 sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /dev/null
 
-
 echo "Sort all differences"
 diff $WERCKER_CACHE_DIR/local.txt $WERCKER_CACHE_DIR/remote.txt | awk '{print $3}' | sort -u > $WERCKER_CACHE_DIR/diff.txt 
 echo "total differenced files "
@@ -61,11 +60,11 @@ while read file_name; do
     curl -u $USERNAME:$PASSWORD -X "DELE $file_name" $DESTINATION/ || echo "$file_name does not exists on server"
     # remove it from remote list also.
     # it does not change anything if file were not there
-    sed -i "/\\b$file_name\\b/d" $WERCKER_CACHE_DIR/remote.txt 
+    sed -i "\|\b$file_name\b|d" $WERCKER_CACHE_DIR/remote.txt 
     if [ -f $file_name ];
     then
       # it is on local, so push it to server
-      curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name" || echo "failed to push $file_name!!!!! do not know what to do"
+      curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name" || echo "failed to push $file_name!!!!! do not know what to do. please remove all files from $DESTINATION and start again"
       md5sum $file_name >> $WERCKER_CACHE_DIR/remote.txt
     fi
     if [ "$TIMEOUT" -le $(( ($(date +"%s") - $date_start) / 60 )) ];
@@ -82,7 +81,7 @@ sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /d
 if diff $WERCKER_CACHE_DIR/remote.txt $WERCKER_CACHE_DIR/local.txt > /dev/null;then
   echo "ok"
 else
-  echo "They should not be different"
+  echo "They should not be different. Please remove all files from $DESTINATION and start Again"
 fi
 
 curl -u $USERNAME:$PASSWORD -X "DELE $REMOTE_FILE" $DESTINATION/ || echo "$REMOTE_FILE did not exists on server"
