@@ -1,17 +1,17 @@
 # ftp-deploy
 
-Deploy your files with FTP. Push only files that has been changed
+Deploy your files with FTP. It looks for list of files and their md5sum in *remote.txt* and compare with local generated files. If file is changed or removed it will be deleted from FTP repository. New or modified files will be pushed to FTP repository.
 
 # Options
 
 * `destination` (required) Full FTP path to upload to. Should start with ftp:// and end with wwwroot or public_html
 * `username` (required) Username to connect to FTP server.
 * `password` (required) Password to connect to FTP server
-* `remote-file` (optional, default is a @remote.txt@) It is a list of md5sum and filename (one filename in one row). It is uploaded each time deplot is completed.
+* `remote-file` (optional, default is a *remote.txt*) It is a list of md5sum and filename (one filename in one row). It is should be kept synchronized with files. If you lose syncgronization, simple remove all you files from destination and it will be regenerated.
 
 # Example
 
-Add PASSWORD as environment variable.
+Add PASSWORD as environment variable. Other options can be hardcoded.
 
 ```yaml
 deploy:
