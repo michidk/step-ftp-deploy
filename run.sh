@@ -38,13 +38,13 @@ echo "Test connection and list $DESTINATION files"
 echo "curl -u $USERNAME:do_not_show_PASSWORD_in_log $DESTINATION/"
 curl -u $USERNAME:$PASSWORD $DESTINATION/
 
-rm -f $WERCKER_CACHE/local.txt
+rm -f $WERCKER_CACHE_DIR/local.txt
 
-find . -type f -exec md5sum {} > $WERCKER_CACHE/local.txt \;
+find . -type f -exec md5sum {} > $WERCKER_CACHE_DIR/local.txt \;
 
-curl -u $USERNAME:$PASSWORD  $DESTINATION/remote.txt -o $WERCKER_CACHE/remote.txt || (echo "no such file" && touch $WERCKER_CACHE/remote.txt )
+curl -u $USERNAME:$PASSWORD  $DESTINATION/remote.txt -o $WERCKER_CACHE_DIR/remote.txt || (echo "no such file" && touch $WERCKER_CACHE_DIR/remote.txt )
 
-diff $WERCKER_CACHE/local.txt $WERCKER_CACHE/remote.txt | awk '{print $3}' | sort -u |tee $WERCKER_CACHE/diff.txt
+diff $WERCKER_CACHE_DIR/local.txt $WERCKER_CACHE_DIR/remote.txt | awk '{print $3}' | sort -u |tee $WERCKER_CACHE_DIR/diff.txt
 
 while read file_name; do
   if [  -n "$file_name" ];
@@ -56,9 +56,9 @@ while read file_name; do
       curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name"
     fi
   fi
-done < $WERCKER_CACHE/diff.txt
+done < $WERCKER_CACHE_DIR/diff.txt
 
-curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE/local.txt" "$DESTINATION/remote.txt"
+curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/local.txt" "$DESTINATION/remote.txt"
 
 success "done uploading"
 
