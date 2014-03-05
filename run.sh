@@ -1,7 +1,4 @@
-#check for curl
-#check if password is filled
-#check if publish url starts with ftp
-#check if publish url endswith wwwroot
+#!/bin/bash -x
 
 # confirm environment variables
 if [ ! -n "$WERCKER_FTP_DEPLOY_DESTINATION" ]
@@ -29,7 +26,7 @@ export REMOTE_FILE=$WERCKER_FTP_DEPLOY_REMOTE_FILE
 
 if [ ! -n "$WERCKER_FTP_DEPLOY_REMOTE_FILE" ]
 then
-    info "missing option \"diff-file\" so we will use all files"
+    echo "missing option \"diff-file\" so we will use all files"
     export REMOTE_FILE=remote.txt
 fi
 
@@ -46,11 +43,11 @@ curl -u $USERNAME:$PASSWORD  $DESTINATION/remote.txt -o $WERCKER_CACHE_DIR/remot
 
 diff $WERCKER_CACHE_DIR/local.txt $WERCKER_CACHE_DIR/remote.txt | awk '{print $3}' | sort -u > $WERCKER_CACHE_DIR/diff.txt
 
-info "start removing and push new or changed files"
+echo "start removing and push new or changed files"
 while read file_name; do
   if [  -n "$file_name" ];
   then
-    info $file_name
+    echo $file_name
     curl -u $USERNAME:$PASSWORD -X "DELE $file_name" $DESTINATION/
     if [ -f $file_name ];
     then
@@ -59,8 +56,8 @@ while read file_name; do
   fi
 done < $WERCKER_CACHE_DIR/diff.txt
 
-info "uploading remote.txt"
+echo "uploading remote.txt"
 curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/local.txt" "$DESTINATION/remote.txt"
 
-success "done uploading"
+echo "done uploading"
 
