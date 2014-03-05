@@ -2,9 +2,9 @@
 
 # since wercker in beta allows max 25 minuter per build 
 # upload of large files can be separated
-TIMEOUT=20
+TIMEOUT=2
 date_start=$(date +"%s")
-echo "TIMEOUT is set to $TIMEOUT. If wercker stop the script, it should from the beginning and clean FTP destination."
+echo "TIMEOUT is set to $TIMEOUT min. If wercker stop the script, it should from the beginning and clean FTP destination."
 
 # confirm environment variables
 if [ ! -n "$WERCKER_FTP_DEPLOY_DESTINATION" ]
@@ -37,15 +37,18 @@ curl -u $USERNAME:$PASSWORD $DESTINATION/
 
 echo "Calculating md5sum for local files" 
 find . -type f -exec md5sum {} > $WERCKER_CACHE_DIR/local.txt \;
-sort -k 2 -u $WERCKER_CACHE_DIR/local.txt
+sort -k 2 -u $WERCKER_CACHE_DIR/local.txt -o $WERCKER_CACHE_DIR/local.txt > /dev/null
 
 echo "Obtaining $REMOTE_FILE"
-curl -u $USERNAME:$PASSWORD  $DESTINATION/$REMOTE_FILE -o $WERCKER_CACHE_DIR/remote.txt || (echo "No $REMOTE_FILE file" && touch $WERCKER_CACHE_DIR/remote.txt )
-sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt
+curl -u $USERNAME:$PASSWORD  $DESTINATION/$REMOTE_FILE -o $WERCKER_CACHE_DIR/remote.txt || (echo "No $REMOTE_FILE file" && echo "" > $WERCKER_CACHE_DIR/remote.txt )
+echo "Sort unique"
+sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /dev/null
+
 
 echo "Sort all differences"
-diff $WERCKER_CACHE_DIR/local.txt $WERCKER_CACHE_DIR/remote.txt | awk '{print $3}' | sort -u > $WERCKER_CACHE_DIR/diff.txt
-
+diff $WERCKER_CACHE_DIR/local.txt $WERCKER_CACHE_DIR/remote.txt | awk '{print $3}' | sort -u > $WERCKER_CACHE_DIR/diff.txt 
+echo "total differenced files "
+cat ~/Downloads/diff.txt | wc -l
 
 echo "Start removing and push new or changed files"
 # if file is diff.txt that means it is changed, removed of added
@@ -58,7 +61,7 @@ while read file_name; do
     curl -u $USERNAME:$PASSWORD -X "DELE $file_name" $DESTINATION/ || echo "$file_name does not exists on server"
     # remove it from remote list also.
     # it does not change anything if file were not there
-    sed -i "/\b$file_name\b/d" $WERCKER_CACHE_DIR/remote.txt 
+    sed -i "/\\b$file_name\\b/d" $WERCKER_CACHE_DIR/remote.txt 
     if [ -f $file_name ];
     then
       # it is on local, so push it to server
@@ -67,21 +70,22 @@ while read file_name; do
     fi
     if [ "$TIMEOUT" -le $(( ($(date +"%s") - $date_start) / 60 )) ];
     then
-      echo "TIMEOUT $TIMEOUT expired, pushing $REMOTE_FILE before wercker stop us."
-      mv $WERCKER_CACHE_DIR/remote.txt $WERCKER_CACHE_DIR/local.txt
+      echo "TIMEOUT $TIMEOUT min has expired, pushing $REMOTE_FILE before wercker stop the script."
+      cp $WERCKER_CACHE_DIR/remote.txt $WERCKER_CACHE_DIR/local.txt
       break
     fi
   fi
 done < $WERCKER_CACHE_DIR/diff.txt
 
 # local and remote should be equal
-sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt
+sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /dev/null
 if diff $WERCKER_CACHE_DIR/remote.txt $WERCKER_CACHE_DIR/local.txt > /dev/null;then
   echo "ok"
 else
   echo "They should not be different"
 fi
 
+curl -u $USERNAME:$PASSWORD -X "DELE $REMOTE_FILE" $DESTINATION/ || echo "$REMOTE_FILE did not exists on server"
 echo "Uploading remote.txt"
 curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/local.txt" "$DESTINATION/$REMOTE_FILE"
 
