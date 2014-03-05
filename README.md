@@ -1,14 +1,15 @@
 # ftp-deploy
 
-Deploy your files with FTP. It looks for list of files and their md5sum in *remote-file* and compare with local generated files. If file is changed or removed it will be deleted from FTP repository and then modified of new files will be pushed to FTP repository.
-If *remote-file* is not in sync with actual files on *destination*, please clean *destination* and start again.
+Deploy your files with FTP. It looks for list of files and their md5sum in **remote-file** and compare with local generated files. If some of local file is changed (or removed) it will be deleted from FTP repository and then that modified (or new) file will be pushed to FTP repository.
+If **remote-file** is not in sync with actual files on **destination**, please clean **destination** and start again.
 
 # Options
 
 * `destination` (required) Full FTP path to upload to. Should start with ftp:// and end with wwwroot or public_html
 * `username` (required) Username to connect to FTP server.
 * `password` (required) Password to connect to FTP server
-* `remote-file` (optional, default is a *remote.txt*) It is a list of md5sum and filename (one filename in one row). It is should be kept synchronized with files. If you lose syncgronization, simple remove all you files from destination and it will be regenerated.
+* `remote-file` (optional, default is a *remote.txt*) It is a list of md5sum and filename (one filename in one row). It is should be kept synchronized with files. If you lose synchronization, simple remove all you files from destination and they will be uploaded again.
+* `timeout` (optional, default is 20) Since uploading large repositories may take a long time you can define TIMEOUT when to stop and send **remote-file**. If wercker stop the scriptbefore we push **remote-file**, then we do not know what is actually on server.
 
 # Example
 

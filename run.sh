@@ -1,10 +1,4 @@
-#!/bin/bash -x
-
-# since wercker in beta allows max 25 minuter per build 
-# upload of large files can be separated
-TIMEOUT=20
-date_start=$(date +"%s")
-echo "TIMEOUT is set to $TIMEOUT min. If wercker stop the script, it should from the beginning and clean FTP destination."
+#!/bin/bash 
 
 # confirm environment variables
 if [ ! -n "$WERCKER_FTP_DEPLOY_DESTINATION" ]
@@ -28,8 +22,18 @@ REMOTE_FILE=$WERCKER_FTP_DEPLOY_REMOTE_FILE
 if [ ! -n "$WERCKER_FTP_DEPLOY_REMOTE_FILE" ]
 then
     echo "missing option \"remote-file\" so we will use all files"
-    export REMOTE_FILE=remote.txt
+    REMOTE_FILE=remote.txt
 fi
+
+# since wercker in beta allows max 25 minuter per build 
+# upload of large files can be separated
+TIMEOUT=20
+date_start=$(date +"%s")
+if [ ! -n "$WERCKER_FTP_DEPLOY_TIMEOUT" ]
+then
+    TIMEOUT=$WERCKER_FTP_DEPLOY_TIMEOUT
+fi
+echo "TIMEOUT is set to $TIMEOUT min. If wercker stops this script before TIMEOUT then $REMOTE_FILE lose synchronization. Clean FTP destination and start again."
 
 echo "Test connection and list $DESTINATION files"
 echo "curl -u $USERNAME:do_not_show_PASSWORD_in_log $DESTINATION/"
@@ -46,11 +50,11 @@ sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /d
 
 echo "Sort all differences"
 diff $WERCKER_CACHE_DIR/local.txt $WERCKER_CACHE_DIR/remote.txt | awk '{print $3}' | sort -u > $WERCKER_CACHE_DIR/diff.txt 
-echo "total differenced files "
-cat ~/Downloads/diff.txt | wc -l
+echo "total number of changed files "
+cat $WERCKER_CACHE_DIR/diff.txt | wc -l
 
 echo "Start removing and push new or changed files"
-# if file is diff.txt that means it is changed, removed of added
+# if file is in diff.txt that means it is changed, removed of added
 # in all cases it should be removed from server
 # if it exists on local, then it should be pushed
 while read file_name; do
@@ -70,8 +74,10 @@ while read file_name; do
     if [ "$TIMEOUT" -le $(( ($(date +"%s") - $date_start) / 60 )) ];
     then
       echo "TIMEOUT $TIMEOUT min has expired, pushing $REMOTE_FILE before wercker stop the script."
-      cp $WERCKER_CACHE_DIR/remote.txt $WERCKER_CACHE_DIR/local.txt
-      break
+      curl -u $USERNAME:$PASSWORD -X "DELE $REMOTE_FILE" $DESTINATION/ || echo "$REMOTE_FILE has not been exist at the server"
+      curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/remote.txt" "$DESTINATION/$REMOTE_FILE"
+
+      fail "Please run again this script to finish all your files."
     fi
   fi
 done < $WERCKER_CACHE_DIR/diff.txt
@@ -85,7 +91,7 @@ else
 fi
 
 curl -u $USERNAME:$PASSWORD -X "DELE $REMOTE_FILE" $DESTINATION/ || echo "$REMOTE_FILE did not exists on server"
-echo "Uploading remote.txt"
+echo "Uploading $REMOTE_FILE"
 curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/local.txt" "$DESTINATION/$REMOTE_FILE"
 
 echo "Done uploading"
