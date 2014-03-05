@@ -29,7 +29,7 @@ fi
 # upload of large files can be separated
 TIMEOUT=20
 date_start=$(date +"%s")
-if [ ! -n "$WERCKER_FTP_DEPLOY_TIMEOUT" ]
+if [  -n "$WERCKER_FTP_DEPLOY_TIMEOUT" ]
 then
     TIMEOUT=$WERCKER_FTP_DEPLOY_TIMEOUT
 fi
