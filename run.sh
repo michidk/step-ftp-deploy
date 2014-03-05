@@ -42,10 +42,11 @@ rm -f $WERCKER_CACHE_DIR/local.txt
 
 find . -type f -exec md5sum {} > $WERCKER_CACHE_DIR/local.txt \;
 
-curl -u $USERNAME:$PASSWORD  $DESTINATION/remote.txt -o $WERCKER_CACHE_DIR/remote.txt || (echo "no such file" && touch $WERCKER_CACHE_DIR/remote.txt )
+curl -u $USERNAME:$PASSWORD  $DESTINATION/remote.txt -o $WERCKER_CACHE_DIR/remote.txt || (echo "no remote.txt file" && touch $WERCKER_CACHE_DIR/remote.txt )
 
-diff $WERCKER_CACHE_DIR/local.txt $WERCKER_CACHE_DIR/remote.txt | awk '{print $3}' | sort -u |tee $WERCKER_CACHE_DIR/diff.txt
+diff $WERCKER_CACHE_DIR/local.txt $WERCKER_CACHE_DIR/remote.txt | awk '{print $3}' | sort -u > $WERCKER_CACHE_DIR/diff.txt
 
+info "start removing and push new or changed files"
 while read file_name; do
   if [  -n "$file_name" ];
   then
@@ -58,6 +59,7 @@ while read file_name; do
   fi
 done < $WERCKER_CACHE_DIR/diff.txt
 
+info "uploading remote.txt"
 curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/local.txt" "$DESTINATION/remote.txt"
 
 success "done uploading"
