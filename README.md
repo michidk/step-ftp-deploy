@@ -14,7 +14,7 @@ Another case is that a file is deleted before the files referring to it are upda
 * `username` (required) Username to connect to FTP server.
 * `password` (required) Password to connect to FTP server
 * `remote-file` (optional, default is a *remote.txt*) It is a list of md5sum and filename (one filename in one row). It is should be kept synchronized with files. If it loses synchronization, simple remove all files from destination and they will be uploaded again and *remote.txt* regenerated.
-* `timeout` (optional, default is 20) Since uploading large repositories may take a long time you can define TIMEOUT when to stop before wercker stop the script. 
+* `timeout` (optional, default is 20) Since uploading large number of files may take a long time you can define TIMEOUT when to stop before wercker stops the script. 
 
 # Example
 
