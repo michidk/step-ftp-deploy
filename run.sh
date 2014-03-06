@@ -70,8 +70,9 @@ sed -i '/^$/d' $WERCKER_CACHE_DIR/removed.txt
 wc -l < $WERCKER_CACHE_DIR/removed.txt
 
 debug "Find changed files"
-grep -v -f $WERCKER_CACHE_DIR/new.txt $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/same_local.txt
-grep -v -f $WERCKER_CACHE_DIR/removed.txt $WERCKER_CACHE_DIR/remote.txt > $WERCKER_CACHE_DIR/same_remote.txt
+grep -v -f $WERCKER_CACHE_DIR/new.txt $WERCKER_CACHE_DIR/local.txt | tee $WERCKER_CACHE_DIR/same_local.txt > /dev/null
+grep -v -f $WERCKER_CACHE_DIR/removed.txt $WERCKER_CACHE_DIR/remote.txt | tee $WERCKER_CACHE_DIR/same_remote.txt > /dev/null
+echo "111111111111"
 diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='
 %l' --unchanged-line-format=''  $WERCKER_CACHE_DIR/same_remote.txt $WERCKER_CACHE_DIR/same_local.txt | awk '{print $2}' | tee $WERCKER_CACHE_DIR/changed.txt > /dev/null
 sed -i '/^$/d' $WERCKER_CACHE_DIR/changed.txt
