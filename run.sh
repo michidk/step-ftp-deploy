@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # TODO if destination url does not exist, maybe we should create it
 # TODO filenames with space
@@ -60,6 +60,7 @@ cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt > $WERCKER_CACHE_DIR/remote_files.tx
 cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/local_files.txt
 diff 404.shtml 404.shtml
 diff --version
+echo "000000"
 diff 404.shtml index.html > l.txt
 echo "111111"
 diff  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/new.txt
