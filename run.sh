@@ -51,15 +51,16 @@ debug "Calculating md5sum for local files"
 find . -type f -exec md5sum {} > $WERCKER_CACHE_DIR/local.txt \;
 sort -k 2 -u $WERCKER_CACHE_DIR/local.txt -o $WERCKER_CACHE_DIR/local.txt > /dev/null
 
-debug "Obtaining $REMOTE_FILE"
+debug "Look for $REMOTE_FILE"
 curl -u $USERNAME:$PASSWORD  $DESTINATION/$REMOTE_FILE -o $WERCKER_CACHE_DIR/remote.txt || (debug "No $REMOTE_FILE file" && echo "" > $WERCKER_CACHE_DIR/remote.txt )
 sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /dev/null
 
 debug "Find files that are new"
 cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt > $WERCKER_CACHE_DIR/remote_files.txt
 cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/local_files.txt
+diff 404.shtml 404.shtml
 diff --version
-diff 404.shtml index.html > /dev/null
+diff 404.shtml index.html > l.txt
 echo "111111"
 diff  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/new.txt
 echo "222222"
