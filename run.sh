@@ -58,9 +58,12 @@ sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /d
 debug "Find files that are new"
 cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt > $WERCKER_CACHE_DIR/remote_files.txt
 cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/local_files.txt
-tail $WERCKER_CACHE_DIR/local_files.txt
-diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/new.txt
-tail $WERCKER_CACHE_DIR/new.txt
+diff --version
+echo "111111"
+diff  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt 
+echo "222222"
+diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt
+echo "33333"
 sed -i '/^$/d' $WERCKER_CACHE_DIR/new.txt
 wc -l < $WERCKER_CACHE_DIR/new.txt
 
