@@ -1,14 +1,12 @@
-#!/bin/bash 
+#!/bin/bash
 
-# TODO is destination url is not create, maybe we should create it
-# 
+# TODO if destination url does not exist, maybe we should create it
+# TODO filenames with space
 
-# curl 19 response
-# 250 OK deleted
-# 550 missing file
-
-# removing is done with -Q "-DELE $file_name" src: http://curl.haxx.se/mail/archive-2009-01/0040.html
-
+# curl adding is done with --ftp-create-dirs -T "$file_name" 
+# curl removing is done with -Q "-DELE $file_name" 
+# src: http://curl.haxx.se/mail/archive-2009-01/0040.html
+# these commands return an error if they fail
 
 # confirm environment variables
 if [ ! -n "$WERCKER_FTP_DEPLOY_DESTINATION" ]
@@ -36,14 +34,14 @@ then
 fi
 
 # since wercker in beta allows max 25 minuter per build 
-# upload of large files can be separated
+# upload of large number of files can be separated
 TIMEOUT=20
 date_start=$(date +"%s")
 if [  -n "$WERCKER_FTP_DEPLOY_TIMEOUT" ]
 then
     TIMEOUT=$WERCKER_FTP_DEPLOY_TIMEOUT
 fi
-debug "TIMEOUT is set to $TIMEOUT min. If wercker stops this script before TIMEOUT then $REMOTE_FILE lose synchronization. Clean FTP destination and start again."
+debug "TIMEOUT is set to $TIMEOUT min. After that you should run this script again to complete all files. If wercker stops this script before TIMEOUT then it may happen that $REMOTE_FILE is not uploaded, so use short TIMEOUT (less than 25min)."
 
 debug "Test connection and list $DESTINATION files"
 echo "curl -u $USERNAME:do_not_show_PASSWORD_in_log $DESTINATION/"
@@ -86,7 +84,7 @@ while read file_name; do
     fail "$file_name should exists"
   else
     echo $file_name
-    curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name" || fail "failed to push $file_name!!!!! do not know what to do. please remove all files from $DESTINATION and start again"
+    curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name" || fail "failed to push $file_name Please try again"
     md5sum $file_name >> $WERCKER_CACHE_DIR/remote.txt
     curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/remote.txt" "$DESTINATION/$REMOTE_FILE" || fail "failed to push $REMOTE_FILE. It is not in sync anymore. Please remove all files from $DESTINATION and start again"
   fi
@@ -103,8 +101,8 @@ while read file_name; do
     fail "$file_name should exists"
   else
     echo $file_name
-    curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name" || fail "failed to push $file_name!!!!! do not know what to do. please remove all files from $DESTINATION and start again"
-    sed -i "\|\b$file_name\b|d" $WERCKER_CACHE_DIR/remote.txt 
+    curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name" || fail "failed to push $file_name that probaably exists on server. Please try again."
+    sed -i "\|\s$file_name$|d" $WERCKER_CACHE_DIR/remote.txt 
     md5sum $file_name >> $WERCKER_CACHE_DIR/remote.txt
     curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/remote.txt" "$DESTINATION/$REMOTE_FILE" || fail "failed to push $REMOTE_FILE. It is not in sync anymore. Please remove all files from $DESTINATION and start again"
   fi
@@ -117,8 +115,8 @@ done < $WERCKER_CACHE_DIR/changed.txt
 debug "Start removing files"
 while read file_name; do
   echo $file_name
-  curl -u $USERNAME:$PASSWORD -Q "-DELE $file_name" $DESTINATION/ > /dev/null || fail "$file_name does not exists on server. Please change or remote your $REMOTE_FILE"
-  sed -i "\|\b$file_name\b|d" $WERCKER_CACHE_DIR/remote.txt 
+  curl -u $USERNAME:$PASSWORD -Q "-DELE $file_name" $DESTINATION/ > /dev/null || fail "$file_name does not exists on server. Please make sure your $REMOTE_FILE is synchronized."
+  sed -i "\|\s$file_name$|d" $WERCKER_CACHE_DIR/remote.txt 
   curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/remote.txt" "$DESTINATION/$REMOTE_FILE" || fail "failed to push $REMOTE_FILE. It is not in sync anymore. Please remove all files from $DESTINATION and start again"
 done < $WERCKER_CACHE_DIR/removed.txt
 
