@@ -59,8 +59,7 @@ debug "Find files that are new"
 cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt > $WERCKER_CACHE_DIR/remote_files.txt
 cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/local_files.txt
 tail $WERCKER_CACHE_DIR/local_files.txt
-diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l
-' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/new.txt
+diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/new.txt
 tail $WERCKER_CACHE_DIR/new.txt
 sed -i '/^$/d' $WERCKER_CACHE_DIR/new.txt
 wc -l < $WERCKER_CACHE_DIR/new.txt
