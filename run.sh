@@ -58,21 +58,14 @@ sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /d
 debug "Find files that are new"
 cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt > $WERCKER_CACHE_DIR/remote_files.txt
 cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/local_files.txt
-diff 404.shtml 404.shtml
-diff --version
-echo "000000"
-diff 404.shtml index.html | tee $WERCKER_CACHE_DIR/l.txt
-echo "111111"
-diff  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt | tee $WERCKER_CACHE_DIR/new.txt
-echo "222222"
-diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt | tee $WERCKER_CACHE_DIR/new.txt
-echo "33333"
+diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l
+' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt | tee $WERCKER_CACHE_DIR/new.txt > /dev/null
 sed -i '/^$/d' $WERCKER_CACHE_DIR/new.txt
 wc -l < $WERCKER_CACHE_DIR/new.txt
 
 debug "Find removed files"
 diff --ignore-case -b --ignore-blank-lines  --old-line-format='%l
-' --new-line-format='' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/removed.txt
+' --new-line-format='' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt $WERCKER_CACHE_DIR/local_files.txt | tee $WERCKER_CACHE_DIR/removed.txt > /dev/null
 sed -i '/^$/d' $WERCKER_CACHE_DIR/removed.txt
 wc -l < $WERCKER_CACHE_DIR/removed.txt
 
@@ -80,7 +73,7 @@ debug "Find changed files"
 grep -v -f $WERCKER_CACHE_DIR/new.txt $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/same_local.txt
 grep -v -f $WERCKER_CACHE_DIR/removed.txt $WERCKER_CACHE_DIR/remote.txt > $WERCKER_CACHE_DIR/same_remote.txt
 diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='
-%l' --unchanged-line-format=''  $WERCKER_CACHE_DIR/same_remote.txt $WERCKER_CACHE_DIR/same_local.txt | awk '{print $2}' > $WERCKER_CACHE_DIR/changed.txt
+%l' --unchanged-line-format=''  $WERCKER_CACHE_DIR/same_remote.txt $WERCKER_CACHE_DIR/same_local.txt | awk '{print $2}' | tee $WERCKER_CACHE_DIR/changed.txt > /dev/null
 sed -i '/^$/d' $WERCKER_CACHE_DIR/changed.txt
 wc -l < $WERCKER_CACHE_DIR/changed.txt
 
