@@ -59,7 +59,7 @@ debug "Find files that are new"
 cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt > $WERCKER_CACHE_DIR/remote_files.txt
 cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/local_files.txt
 diff --version
-diff 404.shtml index.html
+diff 404.shtml index.html > /dev/null
 echo "111111"
 diff  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/new.txt
 echo "222222"
