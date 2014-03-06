@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 # TODO if destination url does not exist, maybe we should create it
 # TODO filenames with space
@@ -56,15 +56,16 @@ curl -u $USERNAME:$PASSWORD  $DESTINATION/$REMOTE_FILE -o $WERCKER_CACHE_DIR/rem
 sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /dev/null
 
 debug "Find files that are new"
+cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt > $WERCKER_CACHE_DIR/local_files.txt
+cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/local_files.txt
 diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l
-' --unchanged-line-format=''  <(cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt) <(cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt) > $WERCKER_CACHE_DIR/new.txt
-debug "remove empty lines"
+' --unchanged-line-format=''  remote_files.txt  local_files_txt > $WERCKER_CACHE_DIR/new.txt
 sed -i '/^$/d' $WERCKER_CACHE_DIR/new.txt
 wc -l < $WERCKER_CACHE_DIR/new.txt
 
 debug "Find removed files"
 diff --ignore-case -b --ignore-blank-lines  --old-line-format='%l
-' --new-line-format='' --unchanged-line-format=''  <(cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt) <(cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt) > $WERCKER_CACHE_DIR/removed.txt
+' --new-line-format='' --unchanged-line-format=''  remote_files.txt local_files.txt > $WERCKER_CACHE_DIR/removed.txt
 sed -i '/^$/d' $WERCKER_CACHE_DIR/removed.txt
 wc -l < $WERCKER_CACHE_DIR/removed.txt
 
