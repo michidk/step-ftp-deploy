@@ -63,9 +63,9 @@ diff --version
 echo "000000"
 diff 404.shtml index.html | tee $WERCKER_CACHE_DIR/l.txt
 echo "111111"
-diff  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/new.txt
+diff  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt | tee $WERCKER_CACHE_DIR/new.txt
 echo "222222"
-diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/new.txt
+diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l' --unchanged-line-format=''  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt | tee $WERCKER_CACHE_DIR/new.txt
 echo "33333"
 sed -i '/^$/d' $WERCKER_CACHE_DIR/new.txt
 wc -l < $WERCKER_CACHE_DIR/new.txt
