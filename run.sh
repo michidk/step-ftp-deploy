@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # TODO if destination url does not exist, maybe we should create it
 # TODO filenames with space
