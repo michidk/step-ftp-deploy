@@ -61,7 +61,7 @@ cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt > $WERCKER_CACHE_DIR/local_files.txt
 diff 404.shtml 404.shtml
 diff --version
 echo "000000"
-diff 404.shtml index.html > l.txt
+diff 404.shtml index.html | tee $WERCKER_CACHE_DIR/l.txt
 echo "111111"
 diff  $WERCKER_CACHE_DIR/remote_files.txt  $WERCKER_CACHE_DIR/local_files.txt > $WERCKER_CACHE_DIR/new.txt
 echo "222222"
