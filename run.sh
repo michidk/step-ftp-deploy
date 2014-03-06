@@ -55,10 +55,10 @@ debug "Obtaining $REMOTE_FILE"
 curl -u $USERNAME:$PASSWORD  $DESTINATION/$REMOTE_FILE -o $WERCKER_CACHE_DIR/remote.txt || (debug "No $REMOTE_FILE file" && echo "" > $WERCKER_CACHE_DIR/remote.txt )
 sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /dev/null
 
-debug "Find new files "
+debug "Find files that are new"
 diff --ignore-case -b --ignore-blank-lines  --old-line-format='' --new-line-format='%l
 ' --unchanged-line-format=''  <(cut -d' ' -f3 $WERCKER_CACHE_DIR/remote.txt) <(cut -d' ' -f3 $WERCKER_CACHE_DIR/local.txt) > $WERCKER_CACHE_DIR/new.txt
-# remove empty lines
+debug "remove empty lines"
 sed -i '/^$/d' $WERCKER_CACHE_DIR/new.txt
 wc -l < $WERCKER_CACHE_DIR/new.txt
 
