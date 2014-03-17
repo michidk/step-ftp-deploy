@@ -51,7 +51,7 @@ debug "Calculating md5sum for local files"
 find . -type f -exec md5sum {} > $WERCKER_CACHE_DIR/local.txt \;
 sort -k 2 -u $WERCKER_CACHE_DIR/local.txt -o $WERCKER_CACHE_DIR/local.txt > /dev/null
 
-debug "Look for $REMOTE_FILE"
+debug "Look for $DESTINATION/$REMOTE_FILE"
 curl -u $USERNAME:$PASSWORD  $DESTINATION/$REMOTE_FILE -o $WERCKER_CACHE_DIR/remote.txt || (debug "No $REMOTE_FILE file" && echo "" > $WERCKER_CACHE_DIR/remote.txt )
 sort -k 2 -u $WERCKER_CACHE_DIR/remote.txt -o $WERCKER_CACHE_DIR/remote.txt > /dev/null
 
