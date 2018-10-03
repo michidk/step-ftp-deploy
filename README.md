@@ -1,5 +1,7 @@
 # ftp-deploy
 
+[![wercker status](https://app.wercker.com/status/060bb1a8a8d0d4f4e7d8d32482d73715/s/master "wercker status")](https://app.wercker.com/project/byKey/060bb1a8a8d0d4f4e7d8d32482d73715)
+
 Deploy your files with FTP. It looks for list of files and their md5sum in **remote-file** and compare with local generated files. Any change of local files will be uploaded in this order:
 1) Add all new files
 2) Update all modified files
