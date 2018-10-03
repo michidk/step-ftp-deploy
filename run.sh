@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # TODO if destination url does not exist, maybe we should create it
-# TODO filenames with space
 
 # curl adding is done with --ftp-create-dirs -T "$file_name" 
 # curl removing is done with -Q "-DELE $file_name" 
 # src: http://curl.haxx.se/mail/archive-2009-01/0040.html
 # these commands return an error if they fail
 
+# from https://stackoverflow.com/a/34938751/3453182
 urlencode() {
     # urlencode <string>
 
