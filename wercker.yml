@@ -1,4 +1,15 @@
-box: wercker/default
+box: debian
 build:
   steps:
     - validate-wercker-step
+    - shellcheck:
+        files: run.sh
+    - script:
+        name: 'prepare output'
+        code: 'rm -rf $WERCKER_ROOT/.git'
+publish:
+  steps:
+    - install-packages:
+        packages: ca-certificates
+    - internal/publish-step:
+        owner: michidk
