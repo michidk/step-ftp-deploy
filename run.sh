@@ -1,12 +1,25 @@
 #!/bin/bash
 
 # TODO if destination url does not exist, maybe we should create it
-# TODO filenames with space
 
 # curl adding is done with --ftp-create-dirs -T "$file_name" 
 # curl removing is done with -Q "-DELE $file_name" 
 # src: http://curl.haxx.se/mail/archive-2009-01/0040.html
 # these commands return an error if they fail
+
+# from https://stackoverflow.com/a/34938751/3453182
+urlencode() {
+    # urlencode <string>
+
+    local length="${#1}"
+    for (( i = 0; i < length; i++ )); do
+        local c="${1:i:1}"
+        case $c in
+            [a-zA-Z0-9.~_-:/]) printf "$c" ;;
+            *) printf '%%%x' \'"$c" ;;
+        esac
+    done
+}
 
 # confirm environment variables
 if [ ! -n "$WERCKER_FTP_DEPLOY_DESTINATION" ]
@@ -85,6 +98,8 @@ while read file_name; do
     fail "$file_name should exists"
   else
     echo $file_name
+    file_name=urlencode $file_name
+    echo $file_name
     curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name" || fail "failed to push $file_name Please try again"
     md5sum $file_name >> $WERCKER_CACHE_DIR/remote.txt
     curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$WERCKER_CACHE_DIR/remote.txt" "$DESTINATION/$REMOTE_FILE" || fail "failed to push $REMOTE_FILE. It is not in sync anymore. Please remove all files from $DESTINATION and start again"
@@ -102,6 +117,8 @@ while read file_name; do
     fail "$file_name should exists"
   else
     echo $file_name
+    file_name=urlencode $file_name
+    echo $file_name
     curl -u $USERNAME:$PASSWORD --ftp-create-dirs -T "$file_name" "$DESTINATION/$file_name" || fail "failed to push $file_name that probaably exists on server. Please try again."
     sed -i "\|\s$file_name$|d" $WERCKER_CACHE_DIR/remote.txt 
     md5sum $file_name >> $WERCKER_CACHE_DIR/remote.txt
@@ -115,6 +132,8 @@ done < $WERCKER_CACHE_DIR/changed.txt
 
 debug "Start removing files"
 while read file_name; do
+  echo $file_name
+  file_name=urlencode $file_name
   echo $file_name
   curl -u $USERNAME:$PASSWORD -Q "-DELE $file_name" $DESTINATION/ > /dev/null || fail "$file_name does not exists on server. Please make sure your $REMOTE_FILE is synchronized."
   sed -i "\|\s$file_name$|d" $WERCKER_CACHE_DIR/remote.txt 
